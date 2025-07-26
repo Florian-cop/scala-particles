@@ -1,0 +1,28 @@
+# SBT/Scala
+/target/
+/project/target/
+/.bloop/
+/.metals/
+/.idea/
+/.vscode/
+/project/
+*.log
+*.class
+*.cache
+*.lock
+.DS_Store
+# OS
+Thumbs.db
+# JetBrains IDEs
+*.iml
+out/
+# VS Code
+.history/
+
+# Build
+build/
+/dist/
+
+# Misc
+*.swp
+*.swo
