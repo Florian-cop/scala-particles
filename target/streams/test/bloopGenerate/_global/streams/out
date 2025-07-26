@@ -1,0 +1,4 @@
+[debug] [particles-test] Classpath dependencies List()
+[debug] [particles-test] Dependencies from configurations List(particles)
+[debug] Bloop wrote the configuration of project 'particles-test' to 'C:\1--Cours ESGI\4ESGI\Scala\particles\.bloop\particles-test.json'
+[success] Generated .bloop\particles-test.json
