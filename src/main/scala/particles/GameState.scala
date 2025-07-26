@@ -6,10 +6,10 @@ import Direction.*
 import scalafx.scene.paint.Color.*
 import scalafx.beans.property.{BufferProperty, IntegerProperty, ObjectProperty}
 
-final case class GameState(particules: List[Particle], boardWidth: Int, boardHeight: Int) {
+final case class GameState(particles: List[Particle], boardWidth: Int, boardHeight: Int) {
 
   def draw(): List[Circle] =
-    particules.map(_.draw())
+    particles.map(_.draw())
 
   private def bounceDirection(direction: Direction,
                               hitLeft: Boolean,
@@ -19,56 +19,56 @@ final case class GameState(particules: List[Particle], boardWidth: Int, boardHei
     val invertX = hitLeft || hitRight
     val invertY = hitTop || hitBottom
     (invertX, invertY, direction) match {
-      case (true, true, Direction.NORD_EST)    => Direction.SUD_OUEST
-      case (true, true, Direction.NORD_OUEST)  => Direction.SUD_EST
-      case (true, true, Direction.SUD_EST)     => Direction.NORD_OUEST
-      case (true, true, Direction.SUD_OUEST)   => Direction.NORD_EST
-      case (true, true, Direction.NORD)        => Direction.SUD
-      case (true, true, Direction.SUD)         => Direction.NORD
-      case (true, true, Direction.EST)         => Direction.OUEST
-      case (true, true, Direction.OUEST)       => Direction.EST
-      case (true, false, Direction.EST)        => Direction.OUEST
-      case (true, false, Direction.OUEST)      => Direction.EST
-      case (true, false, Direction.NORD_EST)   => Direction.NORD_OUEST
-      case (true, false, Direction.NORD_OUEST) => Direction.NORD_EST
-      case (true, false, Direction.SUD_EST)    => Direction.SUD_OUEST
-      case (true, false, Direction.SUD_OUEST)  => Direction.SUD_EST
-      case (false, true, Direction.NORD)       => Direction.SUD
-      case (false, true, Direction.SUD)        => Direction.NORD
-      case (false, true, Direction.NORD_EST)   => Direction.SUD_EST
-      case (false, true, Direction.NORD_OUEST) => Direction.SUD_OUEST
-      case (false, true, Direction.SUD_EST)    => Direction.NORD_EST
-      case (false, true, Direction.SUD_OUEST)  => Direction.NORD_OUEST
-      case _                                   => direction
+      case (true, true, Direction.NORTH_EAST)    => Direction.SOUTH_WEST
+      case (true, true, Direction.NORTH_WEST)    => Direction.SOUTH_EAST
+      case (true, true, Direction.SOUTH_EAST)    => Direction.NORTH_WEST
+      case (true, true, Direction.SOUTH_WEST)    => Direction.NORTH_EAST
+      case (true, true, Direction.NORTH)         => Direction.SOUTH
+      case (true, true, Direction.SOUTH)         => Direction.NORTH
+      case (true, true, Direction.EAST)          => Direction.WEST
+      case (true, true, Direction.WEST)          => Direction.EAST
+      case (true, false, Direction.EAST)         => Direction.WEST
+      case (true, false, Direction.WEST)         => Direction.EAST
+      case (true, false, Direction.NORTH_EAST)   => Direction.NORTH_WEST
+      case (true, false, Direction.NORTH_WEST)   => Direction.NORTH_EAST
+      case (true, false, Direction.SOUTH_EAST)   => Direction.SOUTH_WEST
+      case (true, false, Direction.SOUTH_WEST)   => Direction.SOUTH_EAST
+      case (false, true, Direction.NORTH)        => Direction.SOUTH
+      case (false, true, Direction.SOUTH)        => Direction.NORTH
+      case (false, true, Direction.NORTH_EAST)   => Direction.SOUTH_EAST
+      case (false, true, Direction.NORTH_WEST)   => Direction.SOUTH_WEST
+      case (false, true, Direction.SOUTH_EAST)   => Direction.NORTH_EAST
+      case (false, true, Direction.SOUTH_WEST)   => Direction.NORTH_WEST
+      case _                                     => direction
     }
   }
 
-  def neightboursOf(x: Int, y: Int, width: Int, height: Int): List[(Int, Int)] =
+  def neighboursOf(coordinates: Coordinates, width: Int, height: Int): List[Coordinates] =
     (for {
       i <- -1 to 1
       j <- -1 to 1
       if (i, j) != (0, 0) &&
-         (0 until width).contains(x + i) &&
-         (0 until height).contains(y + j)
-    } yield (x + i, y + j)).toList
+         (0 until width).contains(coordinates.x + i) &&
+         (0 until height).contains(coordinates.y + j)
+    } yield Coordinates(coordinates.x + i, coordinates.y + j)).toList
 
-  def hasNeighbour(p: Particle,
-                   board: Map[(Int, Int), Direction],
+
+  def hasNeighbour(particle: Particle,
+                   board: Map[Coordinates, Direction],
                    width: Int,
                    height: Int): Boolean =
-    neightboursOf(p.x, p.y, width, height)
-      .exists(coord => board.contains(coord))
+    neighboursOf(particle.coordinates, width, height)
+      .exists(coordinates => board.contains(coordinates))
 
-  def move(initialBoard: Map[(Int, Int), Direction],
+
+  def move(initialBoard: Map[Coordinates, Direction],
            gameState: ObjectProperty[GameState]): List[Particle] = {
     var board = initialBoard
-
-    val updatedParticles = gameState.value.particules.map { particle =>
-      val hitLeft   = particle.x < 0
-      val hitRight  = particle.x >= boardWidth
-      val hitTop    = particle.y < 0
-      val hitBottom = particle.y >= boardHeight
-      val coord     = (particle.x, particle.y)
+    val updatedParticles = gameState.value.particles.map { particle =>
+      val hitLeft   = particle.coordinates.x < 0
+      val hitRight  = particle.coordinates.x >= boardWidth
+      val hitTop    = particle.coordinates.y < 0
+      val hitBottom = particle.coordinates.y >= boardHeight
 
       val newDirection: Direction =
         if (hasNeighbour(particle, board, boardWidth, boardHeight))
@@ -77,11 +77,11 @@ final case class GameState(particules: List[Particle], boardWidth: Int, boardHei
           bounceDirection(particle.direction, hitLeft, hitRight, hitTop, hitBottom)
 
       val newParticle = particle.move(newDirection)
-      board = board.updated((newParticle.x, newParticle.y), newDirection)
+      board = board.updated(newParticle.coordinates, newDirection)
       newParticle
     }
 
-    val newState = gameState.value.copy(particules = updatedParticles)
+    val newState = gameState.value.copy(particles = updatedParticles)
     gameState.update(newState)
     updatedParticles
   }

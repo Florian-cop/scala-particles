@@ -3,7 +3,7 @@ package particles
 import scala.util.Random
 
 enum Direction {
-  case NORD, SUD, EST, OUEST, NORD_EST, NORD_OUEST, SUD_EST, SUD_OUEST
+  case NORTH, SOUTH, EAST, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST
 }
 
 object Direction {
